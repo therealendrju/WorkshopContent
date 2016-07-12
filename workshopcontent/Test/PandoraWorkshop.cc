@@ -10,6 +10,8 @@
 
 #include "workshopcontent/Plugins/MicroBooNEPseudoLayerPlugin.h"
 #include "workshopcontent/Plugins/MicroBooNETransformationPlugin.h"
+#include "workshopcontent/Algorithms/AndrzejTestAlgorithm.h"
+
 
 #include "larpandoracontent/LArContent.h"
 
@@ -72,6 +74,9 @@ int main(int argc, char *argv[])
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LArContent::RegisterBasicPlugins(*pPandora));
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LArContent::SetLArPseudoLayerPlugin(*pPandora, new workshop_content::MicroBooNEPseudoLayerPlugin));
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LArContent::SetLArTransformationPlugin(*pPandora, new workshop_content::MicroBooNETransformationPlugin));
+
+       PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*pPandora, "AndrzejTest", new workshop_content::AndrzejTestAlgorithm::Factory));
+
 
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::ReadSettings(*pPandora, parameters.m_pandoraSettingsFile));
 

@@ -6,10 +6,10 @@
 
     <!-- ALGORITHM SETTINGS -->
     <algorithm type = "LArEventReading">
-        <EventFileName>/path/to/events/.pndr/or/.xml</EventFileName>
+        <EventFileName>/home/v4043/pandora/Pandora_Events_Nu_0_0.pndr</EventFileName>
         <GeometryFileName>/path/to/geometry/.pndr/or/.xml</GeometryFileName>
         <ShouldReadEvents>true</ShouldReadEvents>
-        <ShouldReadGeometry>true</ShouldReadGeometry>
+        <ShouldReadGeometry>false</ShouldReadGeometry>
         <SkipToEvent>0</SkipToEvent>
     </algorithm>
 
@@ -29,10 +29,19 @@
         <MipEquivalentCut>0.</MipEquivalentCut>
     </algorithm>
 
+   <algorithm type = "AndrzejTest">
+    <MyMandatoryString> TestString </MyMandatoryString>
+    <MyOptionalUnsignedInt> 10 </MyOptionalUnsignedInt>
+    <MyMandatoryFloatVector> 0. 1.5 3.0 4.5 </MyMandatoryFloatVector>
+   </algorithm>
+
     <algorithm type = "LArVisualMonitoring">
         <CaloHitListNames>CaloHitListW CaloHitListU CaloHitListV</CaloHitListNames>
         <MCParticleListNames>MCParticleList3D</MCParticleListNames>
         <SuppressMCParticles>22:0.01 2112:1.0</SuppressMCParticles>
         <ShowDetector>true</ShowDetector>
     </algorithm>
+
+
+
 </pandora>
