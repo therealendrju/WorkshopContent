@@ -8,6 +8,8 @@
 
 #include "Pandora/AlgorithmHeaders.h"
 
+#include "larpandoracontent/LArHelpers/LArClusterHelper.h"
+
 #include "workshopcontent/Algorithms/AndrzejTestAlgorithm.h"
 
 using namespace pandora;
@@ -35,7 +37,30 @@ StatusCode AndrzejTestAlgorithm::Run()
              std::cout << value << " "; 
 
 
-         std::cout << std::endl; 
+	const  CaloHitList *pCaloHitList(nullptr); 
+	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetCurrentList(*this, pCaloHitList)); 
+
+
+        const  CaloHitList *pAlgoCaloHitList(nullptr); 
+	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetList(*this,"CaloHitList2D", pAlgoCaloHitList)); 
+
+        CaloHitVector sortedCaloHits(pCaloHitList->begin(), pCaloHitList->end()); 
+    	std::sort(sortedCaloHits.begin(), sortedCaloHits.end(), lar_content::LArClusterHelper::SortHitsByPosition); 
+
+        CaloHitVector sortedAlgoCaloHits(pAlgoCaloHitList->begin(), pAlgoCaloHitList->end()); 
+    	std::sort(sortedAlgoCaloHits.begin(), sortedAlgoCaloHits.end(), lar_content::LArClusterHelper::SortHitsByPosition); 
+
+	//for (const CaloHit * const pCaloHit : sortedCaloHits) 
+    	//{ 
+        //	std::cout << "InputHit - HitType: " << pCaloHit->GetHitType() << ", " << pCaloHit->GetPositionVector() << std::endl; 
+    	//} 
+	for (const CaloHit * const pCaloHit : sortedAlgoCaloHits) 
+    	{ 
+        	std::cout << "InputHit - HitType: " << pCaloHit->GetHitType() << ", " << pCaloHit->GetPositionVector() << std::endl; 
+    	} 
+
+
+        std::cout << std::endl; 
 
 
     return STATUS_CODE_SUCCESS;
