@@ -9,6 +9,7 @@
 #include "Pandora/AlgorithmHeaders.h"
 
 #include "larpandoracontent/LArHelpers/LArClusterHelper.h"
+#include "larpandoracontent/LArHelpers/LArMCParticleHelper.h"
 
 #include "workshopcontent/Algorithms/AndrzejTestAlgorithm.h"
 
@@ -50,6 +51,11 @@ StatusCode AndrzejTestAlgorithm::Run()
         CaloHitVector sortedAlgoCaloHits(pAlgoCaloHitList->begin(), pAlgoCaloHitList->end()); 
     	std::sort(sortedAlgoCaloHits.begin(), sortedAlgoCaloHits.end(), lar_content::LArClusterHelper::SortHitsByPosition); 
 
+	const bool showDetectorGaps(true); 
+
+	PandoraMonitoringApi::SetEveDisplayParameters(this->GetPandora(), showDetectorGaps, DETECTOR_VIEW_XZ, -1.f, -1.f, 1.f); 
+	PandoraMonitoringApi::VisualizeCaloHits(this->GetPandora(), pAlgoCaloHitList, "CurrentCaloHits", BLUE); 
+
 	//for (const CaloHit * const pCaloHit : sortedCaloHits) 
     	//{ 
         //	std::cout << "InputHit - HitType: " << pCaloHit->GetHitType() << ", " << pCaloHit->GetPositionVector() << std::endl; 
@@ -59,9 +65,25 @@ StatusCode AndrzejTestAlgorithm::Run()
         	std::cout << "InputHit - HitType: " << pCaloHit->GetHitType() << ", " << pCaloHit->GetPositionVector() << std::endl; 
     	} 
 
+        // MCParticles
+	const  MCParticleList *pMCParticleList(nullptr); 
+	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetCurrentList(*this, pMCParticleList)); 
+  
+        MCParticleVector sortedMCParticles(pMCParticleList->begin(), pMCParticleList->end()); 
+    	std::sort(sortedMCParticles.begin(), sortedMCParticles.end(), lar_content::LArMCParticleHelper::SortBySource); 
+
+	for
+ 	(const MCParticle * const pMCParticle : sortedMCParticles) 
+	    { 
+        	std::cout << "InputMCParticle - PDG: " << pMCParticle->GetParticleId() << ", nParents " << pMCParticle->GetParentList().size() 
+                  << ", nDaughters " << pMCParticle->GetDaughterList().size() << std::endl; 
+	    } 
+        
 
         std::cout << std::endl; 
 
+        PandoraMonitoringApi::VisualizeMCParticles(this->GetPandora(), pMCParticleList, "CurrentMCParticles", RED); 
+	PandoraMonitoringApi::ViewEvent(this->GetPandora()); 
 
     return STATUS_CODE_SUCCESS;
 }
