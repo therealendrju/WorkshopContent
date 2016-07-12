@@ -22,7 +22,9 @@ AndrzejTestAlgorithm::AndrzejTestAlgorithm() :
     m_myMandatoryString(), 
     m_myOptionalBool(false), 
     m_myOptionalUnsignedInt(5), 
-    m_myMandatoryFloatVector() 
+    m_myMandatoryFloatVector(),
+    m_outputClusterListName(), 
+    m_nHitsPerCluster(10)  
 	{ 
 	} 
 
@@ -43,7 +45,15 @@ StatusCode AndrzejTestAlgorithm::Run()
 
 
         const  CaloHitList *pAlgoCaloHitList(nullptr); 
-	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetList(*this,"CaloHitList2D", pAlgoCaloHitList)); 
+	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetList(*this,"CaloHitListW", pAlgoCaloHitList)); 
+
+       //Create temporary list
+
+        const  ClusterList *pTemporaryList(nullptr); 
+	
+        std::string temporaryListName; 
+
+	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::CreateTemporaryListAndSetCurrent(*this, pTemporaryList, temporaryListName)); 
 
         CaloHitVector sortedCaloHits(pCaloHitList->begin(), pCaloHitList->end()); 
     	std::sort(sortedCaloHits.begin(), sortedCaloHits.end(), lar_content::LArClusterHelper::SortHitsByPosition); 
@@ -51,6 +61,9 @@ StatusCode AndrzejTestAlgorithm::Run()
         CaloHitVector sortedAlgoCaloHits(pAlgoCaloHitList->begin(), pAlgoCaloHitList->end()); 
     	std::sort(sortedAlgoCaloHits.begin(), sortedAlgoCaloHits.end(), lar_content::LArClusterHelper::SortHitsByPosition); 
 
+        const Cluster *pCluster(nullptr); 
+
+        //visualisation
 	const bool showDetectorGaps(true); 
 
 	PandoraMonitoringApi::SetEveDisplayParameters(this->GetPandora(), showDetectorGaps, DETECTOR_VIEW_XZ, -1.f, -1.f, 1.f); 
@@ -63,6 +76,19 @@ StatusCode AndrzejTestAlgorithm::Run()
 	for (const CaloHit * const pCaloHit : sortedAlgoCaloHits) 
     	{ 
         	std::cout << "InputHit - HitType: " << pCaloHit->GetHitType() << ", " << pCaloHit->GetPositionVector() << std::endl; 
+		if (!PandoraContentApi::IsAvailable(*this, pCaloHit)) continue; 
+
+		if (!pCluster || (pCluster->GetNCaloHits() >= m_nHitsPerCluster)) 
+		        { 
+		            PandoraContentApi::Cluster::Parameters parameters; 
+		            parameters.m_caloHitList.insert(pCaloHit); 
+		            PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::Cluster::Create(*this, parameters, pCluster)); 
+		        } 
+		else
+		        { 
+		            PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::AddToCluster(*this, pCluster, pCaloHit)); 
+		        } 
+
     	} 
 
         // MCParticles
@@ -85,6 +111,12 @@ StatusCode AndrzejTestAlgorithm::Run()
         PandoraMonitoringApi::VisualizeMCParticles(this->GetPandora(), pMCParticleList, "CurrentMCParticles", RED); 
 	PandoraMonitoringApi::ViewEvent(this->GetPandora()); 
 
+    if(!pTemporaryList->empty()) 
+	    { 
+        PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SaveList<Cluster>(*this, m_outputClusterListName)); 
+        PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::ReplaceCurrentList<Cluster>(*this, m_outputClusterListName)); 
+	    } 
+
     return STATUS_CODE_SUCCESS;
 }
 
@@ -99,6 +131,8 @@ StatusCode AndrzejTestAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
     PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "MyOptionalUnsignedInt", m_myOptionalUnsignedInt)); 
     PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, XmlHelper::ReadVectorOfValues(xmlHandle, "MyMandatoryFloatVector", m_myMandatoryFloatVector)); 
 
+    PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, XmlHelper::ReadValue(xmlHandle, "OutputClusterListName", m_outputClusterListName)); 
+    PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle, "NHitsPerCluster", m_nHitsPerCluster)); 
 
 
     return STATUS_CODE_SUCCESS;

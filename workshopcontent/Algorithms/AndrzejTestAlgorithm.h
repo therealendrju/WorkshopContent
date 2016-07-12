@@ -41,6 +41,8 @@ private:
     bool                   m_myOptionalBool;     ///< An optional Boolean
     unsigned int          m_myOptionalUnsignedInt;    ///< An optional unsigned int
     pandora::FloatVector    m_myMandatoryFloatVector;   ///< A mandatory vector of floats
+    std::string     m_outputClusterListName;    ///< The output cluster list name
+    unsigned int     m_nHitsPerCluster;          ///< The number of hits to add to each dummy cluster
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------

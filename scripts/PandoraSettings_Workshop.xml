@@ -33,10 +33,12 @@
     <MyMandatoryString> TestString </MyMandatoryString>
     <MyOptionalUnsignedInt> 10 </MyOptionalUnsignedInt>
     <MyMandatoryFloatVector> 0. 1.5 3.0 4.5 </MyMandatoryFloatVector>
+    <OutputClusterListName>MyFirstClustersW</OutputClusterListName>
    </algorithm>
 
     <algorithm type = "LArVisualMonitoring">
         <CaloHitListNames>CaloHitListW CaloHitListU CaloHitListV</CaloHitListNames>
+        <ClusterListNames>MyFirstClustersW</ClusterListNames>
         <MCParticleListNames>MCParticleList3D</MCParticleListNames>
         <SuppressMCParticles>22:0.01 2112:1.0</SuppressMCParticles>
         <ShowDetector>true</ShowDetector>
